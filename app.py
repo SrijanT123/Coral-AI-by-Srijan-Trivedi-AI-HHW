@@ -1,133 +1,82 @@
 import streamlit as st
-from PIL import Image
-import base64
-
-st.set_page_config(page_title="AI Coral Bleaching Detector", layout="wide")
-
 import folium
 from streamlit_folium import st_folium
-import streamlit as st
-
-def coral_bleaching_map():
-    st.subheader("🗺️ Coral Bleaching Hotspots (Live View)")
-
-    m = folium.Map(location=[0, 0], zoom_start=2, tiles='Stamen Terrain')
-
-    # Sample Coral Bleaching Hotspots (you can add more)
-    hotspots = [
-        {"location": [-17.7134, 178.0650], "name": "Fiji"},
-        {"location": [-18.2871, 147.6992], "name": "Great Barrier Reef"},
-        {"location": [5.0, 73.0], "name": "Maldives"},
-        {"location": [20.0, -157.0], "name": "Hawaii"},
-        {"location": [0.7893, 113.9213], "name": "Indonesia"}
-    ]
-
-    for spot in hotspots:
-        folium.Marker(location=spot["location"], popup=spot["name"], icon=folium.Icon(color="red")).add_to(m)
-
-    st_data = st_folium(m, width=700, height=500)
 from PIL import Image
 import numpy as np
+import random
 
-def detect_bleaching(uploaded_image):
-    st.subheader("🔍 Coral Bleaching Detection")
+st.set_page_config(page_title="Coral Bleaching Detection", layout="wide")
 
-    image = Image.open(uploaded_image)
-    st.image(image, caption='Uploaded Coral Image', use_column_width=True)
+st.title("🌊 Coral Bleaching Early Detection & Awareness")
 
-    # Simulated logic — replace with real model later
-    np_image = np.array(image.convert("RGB"))
+# SECTION 1: Upload & Analyze Image
+st.header("📸 Coral Image Analysis (Demo AI)")
+uploaded_file = st.file_uploader("Upload a coral reef image", type=["jpg", "jpeg", "png"])
 
-    brightness = np.mean(np_image)
-    if brightness > 180:
-        st.error("⚠️ Coral Bleaching Detected! (High Brightness Detected)")
+if uploaded_file:
+    st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
+    st.write("✅ Processing image...")
+    
+    # Dummy bleaching detection logic (simulating AI)
+    bleaching_probability = round(random.uniform(0.2, 0.9), 2)
+    if bleaching_probability > 0.6:
+        st.error(f"⚠️ High likelihood of bleaching detected! Probability: {bleaching_probability}")
     else:
-        st.success("✅ Coral Appears Healthy")
+        st.success(f"✅ Healthy coral detected. Probability of bleaching: {bleaching_probability}")
 
+# SECTION 2: Interactive Coral Bleaching Map
+st.header("🗺️ Global Coral Bleaching Map")
 
-# Custom CSS Styling
+# Create a folium map with dummy data
+m = folium.Map(location=[0, 160], zoom_start=2)
+bleaching_locations = [
+    {"location": [14.6, 145.8], "severity": "High", "region": "Micronesia"},
+    {"location": [-18.3, 147.7], "severity": "Moderate", "region": "Great Barrier Reef"},
+    {"location": [5.3, -72.4], "severity": "Low", "region": "Caribbean"},
+]
+
+for loc in bleaching_locations:
+    folium.Marker(
+        location=loc["location"],
+        popup=f"{loc['region']} - Severity: {loc['severity']}",
+        icon=folium.Icon(color="red" if loc["severity"] == "High" else "orange")
+    ).add_to(m)
+
+st_folium(m, width=700, height=500)
+
+# SECTION 3: Informative Section
+st.header("📚 What Are Corals and Why Are They Bleaching?")
+
+st.subheader("🌱 What Are Corals?")
 st.markdown("""
-    <style>
-    .big-font {
-        font-size:25px !important;
-        font-weight: bold;
-    }
-    .header-font {
-        font-size:40px !important;
-        color: #0077b6;
-        font-weight: 800;
-    }
-    .section {
-        padding: 10px 0px;
-    }
-    </style>
-""", unsafe_allow_html=True)
+Corals are marine invertebrates that build large reef structures using calcium carbonate. These reefs are home to **25% of all marine life**.
+They live in symbiosis with **zooxanthellae algae**, which give corals their vibrant color and help them photosynthesize.
 
-# Hero Section
-st.markdown('<div class="header-font">🌊 AI-Powered Coral Bleaching Detection</div>', unsafe_allow_html=True)
-st.markdown("Using computer vision and satellite data to detect early signs of coral bleaching. 🌐")
-
-st.image("https://coral.org/wp-content/uploads/Coral_Bleaching_1-e1619110578757.jpg", use_column_width=True)
-
-# --- Sidebar Upload Section
-st.sidebar.title("🧪 Try AI Bleaching Detection")
-uploaded_image = st.sidebar.file_uploader("Upload Coral Reef Image", type=["jpg", "jpeg", "png"])
-
-if uploaded_image:
-    st.sidebar.image(uploaded_image, caption="Uploaded Image", use_column_width=True)
-    st.sidebar.success("✅ Bleaching Detected in 32% of this reef!")
-else:
-    st.sidebar.info("Upload an image to simulate bleaching detection.")
-
-# --- Detection Section
-st.markdown('<div class="section"><div class="big-font">🤖 How AI Detects Coral Bleaching</div></div>', unsafe_allow_html=True)
-st.markdown("""
-Computer vision models use satellite/drone images to analyze coral color and structure. Bleaching is detected by:
-- 🔍 Monitoring color changes using RGB histograms
-- 📊 Comparing with historical data to detect whitening
-- 🌡️ Factoring in temperature and pH data
-""")
-st.image("https://jonkrohn.com/img/projects/coral-detection.png", caption="AI Model Output Example", use_column_width=True)
-
-# --- Map Section
-st.markdown('<div class="section"><div class="big-font">🗺️ Global Coral Bleaching Map</div></div>', unsafe_allow_html=True)
-map_url = "https://coralreefwatch.noaa.gov/product/5km/index_5km_bleaching.php"
-st.components.v1.iframe(map_url, height=500)
-
-# --- Why Section
-st.markdown('<div class="section"><div class="big-font">💥 Why is Coral Bleaching Happening?</div></div>', unsafe_allow_html=True)
-st.markdown("""
-Bleaching happens when corals eject their algae (zooxanthellae) due to stress:
-- 🌡️ **Rising sea temperatures** cause heat stress
-- 💨 **Ocean acidification** from CO₂ harms skeletons
-- ☠️ **Pollution** like oil, fertilizers, and plastic suffocates reefs
-- 🔦 **UV radiation** in shallow water increases vulnerability
+However, these algae are extremely sensitive to temperature, pH changes, and pollutants.
 """)
 
-# --- What Are Corals
-st.markdown('<div class="section"><div class="big-font">🧠 What Are Corals?</div></div>', unsafe_allow_html=True)
+st.subheader("🔥 Why Does Coral Bleaching Happen?")
 st.markdown("""
-Corals are animals (polyps) that form reefs with help of algae. These structures:
-- 🌍 Support 25% of all marine life
-- 🧬 Offer medicinal value
-- 🛡️ Protect coastlines from storms
-- 💰 Are essential for tourism and fishing industries
-""")
-st.image("https://upload.wikimedia.org/wikipedia/commons/2/25/Coral_polyp_diagram_en.svg", width=500)
+When water gets **too warm** or polluted, corals **expel their algae**, turning white — a process called **bleaching**.
+If stressful conditions persist, corals die from lack of nutrients.
 
-# --- Prevention
-st.markdown('<div class="section"><div class="big-font">✅ How Can We Prevent It?</div></div>', unsafe_allow_html=True)
-st.markdown("""
-Global Action:
-- 🌍 Reduce greenhouse gases
-- 💼 Support ocean-friendly policies and treaties (SDG 14, Paris Accord)
-
-Local Action:
-- 🧴 Use reef-safe sunscreen
-- ♻️ Reduce plastic, avoid polluting beaches
-- 📢 Spread awareness and educate others
+**Main causes**:
+- Ocean warming due to **climate change**
+- **Overfishing** and reef damage
+- Ocean acidification
+- Coastal pollution from oil, plastic, or sewage
 """)
 
+st.subheader("✅ How Can We Prevent It?")
+st.markdown("""
+- **Reduce carbon emissions**: Support renewable energy and climate policies
+- **Ban harmful fishing practices** like trawling and cyanide fishing
+- Create **Marine Protected Areas** (MPAs)
+- Promote **coral-friendly tourism** and sunscreen
+- Fund AI-based **reef monitoring programs** like this one!
+""")
+
+# Footer
 # --- Credits
 st.markdown('<div class="section"><div class="big-font">👨‍💻 Credits</div></div>', unsafe_allow_html=True)
 st.markdown("""
@@ -137,5 +86,3 @@ st.markdown("""
 - **Project:** AI HHW 2025  
 - **Tech Used:** Python, Streamlit, NOAA Coral Data, Computer Vision
 """)
-
-st.success("Built with 💙 using Python + Streamlit")
