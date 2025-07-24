@@ -4,6 +4,47 @@ import base64
 
 st.set_page_config(page_title="AI Coral Bleaching Detector", layout="wide")
 
+import folium
+from streamlit_folium import st_folium
+import streamlit as st
+
+def coral_bleaching_map():
+    st.subheader("🗺️ Coral Bleaching Hotspots (Live View)")
+
+    m = folium.Map(location=[0, 0], zoom_start=2, tiles='Stamen Terrain')
+
+    # Sample Coral Bleaching Hotspots (you can add more)
+    hotspots = [
+        {"location": [-17.7134, 178.0650], "name": "Fiji"},
+        {"location": [-18.2871, 147.6992], "name": "Great Barrier Reef"},
+        {"location": [5.0, 73.0], "name": "Maldives"},
+        {"location": [20.0, -157.0], "name": "Hawaii"},
+        {"location": [0.7893, 113.9213], "name": "Indonesia"}
+    ]
+
+    for spot in hotspots:
+        folium.Marker(location=spot["location"], popup=spot["name"], icon=folium.Icon(color="red")).add_to(m)
+
+    st_data = st_folium(m, width=700, height=500)
+from PIL import Image
+import numpy as np
+
+def detect_bleaching(uploaded_image):
+    st.subheader("🔍 Coral Bleaching Detection")
+
+    image = Image.open(uploaded_image)
+    st.image(image, caption='Uploaded Coral Image', use_column_width=True)
+
+    # Simulated logic — replace with real model later
+    np_image = np.array(image.convert("RGB"))
+
+    brightness = np.mean(np_image)
+    if brightness > 180:
+        st.error("⚠️ Coral Bleaching Detected! (High Brightness Detected)")
+    else:
+        st.success("✅ Coral Appears Healthy")
+
+
 # Custom CSS Styling
 st.markdown("""
     <style>
